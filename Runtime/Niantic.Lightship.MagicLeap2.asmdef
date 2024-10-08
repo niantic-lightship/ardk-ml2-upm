@@ -1,0 +1,25 @@
+{
+    "name": "Niantic.Lightship.MagicLeap",
+    "rootNamespace": "Niantic.Lightship.MagicLeap",
+    "references": [
+        "Niantic.Lightship.AR",
+        "MagicLeap.SDK",
+        "Unity.XR.ARFoundation",
+        "Unity.XR.ARSubsystems",
+        "Unity.XR.Management",
+        "Unity.XR.OpenXR",
+        "Unity.XR.OpenXR.Editor"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

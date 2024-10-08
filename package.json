@@ -1,0 +1,31 @@
+{
+    "name": "com.nianticlabs.lightship.ml2",
+    "displayName": "Niantic Lightship Magic Leap Plugin",
+    "version": "3.9.0-2410041643",
+    "description": "Lightship ARDK adapter for Magic Leap 2",
+    "keywords": [
+        "magicleap",
+        "ar",
+        "augmented",
+        "xr",
+        "reality",
+        "xreditorsubsystem"
+    ],
+    "dependencies": {
+        "com.unity.xr.openxr": "1.11.0",
+        "com.magicleap.unitysdk": "2.4.0",
+        "com.nianticlabs.lightship": "3.9.0-2410041643"
+    },
+    "author": {
+        "name": "Niantic Labs, Inc",
+        "email": "support@lightship.dev",
+        "url": "https://lightship.dev/"
+    },
+    "samples": [
+       {
+            "displayName": "Samples",
+            "description": "Contains sample scenes that demonstrate how to use Lightship with MagicLeap.",
+            "path": "Samples~/Samples"
+        }
+    ]
+}
