@@ -1,0 +1,268 @@
+// Copyright 2022-2024 Niantic.
+
+using System;
+using System.Collections.Generic;
+using Niantic.Lightship.AR.Loader;
+using Niantic.Lightship.AR.Utilities.Logging;
+
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.XR.ARSubsystems;
+using UnityEngine.XR.Management;
+using UnityEngine.XR.OpenXR.Features;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.XR.OpenXR.Features;
+using UnityEditor.Build;
+#endif  // UNITY_EDITOR
+
+namespace Niantic.Lightship.MagicLeap
+{
+#if UNITY_EDITOR
+    [OpenXRFeatureSet(
+        UiName = "Niantic Lightship SDK + Magic Leap",
+        Description = "Features to integrate Lightship functionality into Magic Leap 2 platform.",
+        FeatureSetId = "com.nianticlabs.lightship.ml2.featuregroup",
+        SupportedBuildTargets = new [] { BuildTargetGroup.Android },
+        FeatureIds = new[] {
+            LightshipMagicLeapLoader.FeatureID,
+        },
+        DefaultFeatureIds = new[] {
+            LightshipMagicLeapLoader.FeatureID,
+        }
+    )]
+    public class LightshipMagicLeapFeatureGroup { }
+
+    [OpenXRFeature(UiName = FeatureName,
+        BuildTargetGroups = new[] { BuildTargetGroup.Android },
+        Company = "Niantic Labs Inc.",
+        Desc = "Enables Lightship features on Magic Leap 2",
+        DocumentationLink = "",
+        Version = "3.6.0",
+        Required = false,
+        Priority = -1,
+        Category = FeatureCategory.Feature,
+        FeatureId = FeatureID)]
+#endif // UNITY_EDITOR
+#if UNITY_ANDROID
+    public class LightshipMagicLeapLoader : OpenXRFeature, ILightshipInternalLoaderSupport
+    {
+        private const string FeatureName = "Lightship Magic Leap Features Integration";
+        public const string FeatureID = "com.nianticlabs.lightship.ml2";
+        private ulong _instanceHandle;
+
+        private LightshipLoaderHelper _lightshipLoaderHelper;
+        private readonly List<ILightshipExternalLoader> _externalLoaders = new();
+        private readonly List<XRCameraSubsystemDescriptor> _cameraSubsystemDescriptors = new();
+
+#if UNITY_EDITOR
+        private static class AddDefineSymbols
+        {
+            public static void Add(string define)
+            {
+                string definesString = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android);
+                var allDefines = new HashSet<string>(definesString.Split(';'));
+
+                if (allDefines.Contains(define))
+                {
+                    return;
+                }
+
+                allDefines.Add(define);
+                PlayerSettings.SetScriptingDefineSymbols(
+                    NamedBuildTarget.Android,
+                    string.Join(";", allDefines));
+            }
+
+            public static void Remove(string define)
+            {
+                string definesString = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android);
+                var allDefines = new HashSet<string>(definesString.Split(';'));
+                allDefines.Remove(define);
+                PlayerSettings.SetScriptingDefineSymbols(
+                    NamedBuildTarget.Android,
+                    string.Join(";", allDefines));
+            }
+        }
+
+        [MenuItem("Lightship/Setup ML2")]
+        private static void SetupML2()
+        {
+            AddDefineSymbols.Add("NIANTIC_LIGHTSHIP_ML2_ENABLED");
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.X86_64;
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new GraphicsDeviceType[] {GraphicsDeviceType.Vulkan});
+        }
+
+        [MenuItem("Lightship/Setup Non-ML2 Android")]
+        private static void SetupNonML2Android()
+        {
+            AddDefineSymbols.Remove("NIANTIC_LIGHTSHIP_ML2_ENABLED");
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new GraphicsDeviceType[] {GraphicsDeviceType.OpenGLES3});
+        }
+#endif
+        protected override bool OnInstanceCreate(ulong instanceHandle)
+        {
+            Log.Info("[ARDK ML] Loader instance create");
+            _instanceHandle = instanceHandle;
+            return true;
+        }
+
+        public void InjectLightshipLoaderHelper(LightshipLoaderHelper lightshipLoaderHelper)
+        {
+            _lightshipLoaderHelper = lightshipLoaderHelper;
+        }
+
+        public bool InitializeWithLightshipHelper(LightshipLoaderHelper lightshipLoaderHelper)
+        {
+#if !UNITY_EDITOR && UNITY_ANDROID && NIANTIC_LIGHTSHIP_ML2_ENABLED
+            Log.Info("[ARDK ML] Loader initialize with Lightship Helper");
+            _lightshipLoaderHelper = lightshipLoaderHelper;
+            return _lightshipLoaderHelper.Initialize(this);
+#endif // NIANTIC_LIGHTSHIP_ML2_ENABLED
+            return false;
+        }
+
+        public bool InitializePlatform()
+        {
+            Log.Info("[ARDK ML] Loader initialize platform");
+            CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>
+            (
+                _cameraSubsystemDescriptors,
+                "Lightship-MLCameraSubsystem"
+            );
+            return base.OnInstanceCreate(_instanceHandle);
+        }
+
+        public bool DeinitializePlatform() => true;
+
+        public bool IsPlatformDepthAvailable() => false;
+
+        public new void CreateSubsystem<TDescriptor, TSubsystem>(List<TDescriptor> descriptors, string id)
+            where TDescriptor : ISubsystemDescriptor
+            where TSubsystem : ISubsystem
+        {
+            Log.Info("[ARDK ML] Loader creating subsystem");
+            base.CreateSubsystem<TDescriptor, TSubsystem>(descriptors, id);
+        }
+
+        public new void DestroySubsystem<T>() where T : class, ISubsystem
+        {
+            base.DestroySubsystem<T>();
+        }
+
+        public T GetLoadedSubsystem<T>() where T : class, ISubsystem
+        {
+            //TODO: figure out best way to get openxrloader here (or should we make this class a XRLoaderHelper and override the subsystem creation methods for this)
+            var openXRLoader = XRGeneralSettings.Instance.Manager.activeLoaders[0];
+            return openXRLoader.GetLoadedSubsystem<T>();
+        }
+
+        void ILightshipLoader.AddExternalLoader(ILightshipExternalLoader loader)
+        {
+            _externalLoaders.Add(loader);
+        }
+
+        /// <summary>
+        /// This is the equivalent to XRLoader.Initialize
+        /// </summary>
+        protected override void OnSubsystemCreate()
+        {
+            var lightshipLoaderHelper = new LightshipLoaderHelper(_externalLoaders);
+
+            if (InitializeWithLightshipHelper(lightshipLoaderHelper) == false)
+            {
+                Log.Error("Could not create Lightship MagicLeap support subsystems");
+            }
+        }
+
+        protected override void OnSubsystemDestroy()
+        {
+#if NIANTIC_LIGHTSHIP_ML2_ENABLED
+            _lightshipLoaderHelper.Deinitialize();
+#endif
+        }
+
+        protected override void OnInstanceDestroy(ulong instanceHandle)
+        {
+#if NIANTIC_LIGHTSHIP_ML2_ENABLED
+            base.OnInstanceDestroy(instanceHandle);
+#endif
+        }
+
+    }
+#else // UNITY_ANDROID
+    public class LightshipMagicLeapLoader : OpenXRFeature, ILightshipInternalLoaderSupport
+    {
+        private const string FeatureName = "Lightship Magic Leap Features Integration";
+        public const string FeatureID = "com.nianticlabs.lightship.ml2";
+        private const string ErrorMessage = "LightshipMagicLeapLoader only available on Android";
+
+        protected override bool OnInstanceCreate(ulong instanceHandle)
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        protected override void OnSubsystemCreate()
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        protected override void OnSubsystemDestroy()
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        protected override void OnInstanceDestroy(ulong instanceHandle)
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public void InjectLightshipLoaderHelper(LightshipLoaderHelper lightshipLoaderHelper)
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public bool InitializeWithLightshipHelper(LightshipLoaderHelper lightshipLoaderHelper)
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public bool InitializePlatform()
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public bool DeinitializePlatform()
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public bool IsPlatformDepthAvailable()
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public new void CreateSubsystem<TDescriptor, TSubsystem>(List<TDescriptor> descriptors, string id) where TDescriptor : ISubsystemDescriptor where TSubsystem : ISubsystem
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public new void DestroySubsystem<T>() where T : class, ISubsystem
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        public T GetLoadedSubsystem<T>() where T : class, ISubsystem
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+
+        void ILightshipLoader.AddExternalLoader(ILightshipExternalLoader loader)
+        {
+            throw new NotImplementedException(ErrorMessage);
+        }
+    }
+#endif
+}

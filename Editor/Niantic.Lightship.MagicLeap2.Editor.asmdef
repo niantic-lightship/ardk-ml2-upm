@@ -1,0 +1,26 @@
+{
+    "name": "Niantic.Lightship.MagicLeap.Editor",
+    "rootNamespace": "Niantic.Lightship.MagicLeap.Editor",
+    "references": [
+        "MagicLeap.SDK",
+        "Niantic.Lightship.AR",
+        "Niantic.Lightship.AR.Editor",
+        "Niantic.Lightship.MagicLeap",
+        "Unity.XR.ARSubsystems.Editor",
+        "Unity.XR.CoreUtils.Editor",
+        "Unity.XR.Management",
+        "Unity.XR.Management.Editor",
+        "Unity.XR.OpenXR"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
