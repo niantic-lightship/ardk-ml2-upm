@@ -23,7 +23,7 @@ namespace Niantic.Lightship.MagicLeap.Samples
             _toggleConfidenceImage.isOn = _depthWithConfidenceDisplay.UseConfidenceImage;
 
             // For now, on the Magic Leap platform we are co-opting this setting to mean "Prefer Magic Leap depth"
-            _toggleConfidenceImage.interactable = LightshipSettings.Instance.PreferLidarIfAvailable;
+            _toggleConfidenceImage.interactable = LightshipSettingsHelper.ActiveSettings.PreferLidarIfAvailable;
 
             _sliderConfidenceThreshold.value = _depthWithConfidenceDisplay.ConfidenceThreshold;
             _sliderConfidenceThreshold.interactable = _depthWithConfidenceDisplay.UseConfidenceImage;

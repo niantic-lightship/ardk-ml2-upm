@@ -119,11 +119,6 @@ namespace Niantic.Lightship.MagicLeap
             return timestampMs != 0;
         }
 
-        public override bool TryGetCameraIntrinsicsDeprecated(out XRCameraIntrinsics intrinsics)
-        {
-            return ML2CameraManager.Instance.TryGetIntrinsics(out intrinsics, out _);
-        }
-
         public override bool TryGetCameraIntrinsicsCStruct(out CameraIntrinsicsCStruct intrinsics)
         {
             intrinsics = new CameraIntrinsicsCStruct();
@@ -140,25 +135,6 @@ namespace Niantic.Lightship.MagicLeap
         {
             // Acquire the pose for the latest camera image
             return ML2CameraManager.Instance.TryGetPose(out pose);
-        }
-
-        public override bool TryGetDepthCpuImageDeprecated(out XRCpuImage cpuDepthImage, out XRCpuImage cpuDepthConfidenceImage)
-        {
-            cpuDepthImage = default;
-            cpuDepthConfidenceImage = default;
-
-            // Do not use ML2 depth if it is not enabled.
-            if (!LightshipSettingsHelper.ActiveSettings.PreferLidarIfAvailable)
-            {
-                return false;
-            }
-
-            bool result = ML2DepthCameraManager.Instance.TryGetDepthCpuImageDeprecated(out cpuDepthImage, out cpuDepthConfidenceImage);
-            if (!result)
-            {
-                Log.Warning("[ARDK ML] Failed to get cpu depth image.");
-            }
-            return result;
         }
 
         public override bool TryGetCpuImage(out LightshipCpuImage cpuImage)

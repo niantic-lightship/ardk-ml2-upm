@@ -163,7 +163,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 11501053}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23f4f8e9273c43cf8a81d789f4d7c027, type: 3}
   m_Name: 
@@ -1007,7 +1007,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &879489649
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1025,9 +1025,9 @@ RectTransform:
   - {fileID: 2014226023}
   m_Father: {fileID: 1751540386}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 237.5, y: -16.5}
   m_SizeDelta: {x: 91, y: 33}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &879489650
@@ -3372,8 +3372,8 @@ MonoBehaviour:
   _isOcclusionStabilizationEnabled: 0
   _isOcclusionSuppressionEnabled: 0
   _suppressionChannels: []
-  _useCustomBackgroundMaterial: 0
-  _customBackgroundMaterial: {fileID: 0}
+  _useCustomMaterial: 0
+  _customMaterial: {fileID: 0}
   _bypassOcclusionManagerUpdates: 0
   _overrideOcclusionManagerSettings: 1
   _semanticSegmentationManager: {fileID: 0}

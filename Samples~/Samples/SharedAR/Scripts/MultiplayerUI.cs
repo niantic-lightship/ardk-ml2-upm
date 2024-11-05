@@ -90,7 +90,7 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
             _arLocationManager.SetARLocations(arLocation);
             LatLng gpsLocation = arLocation.GpsLocation;
 
-            if (LightshipSettings.Instance.UseLightshipSpoofLocation)
+            if (LightshipSettingsHelper.ActiveSettings.LocationAndCompassDataSource == SensorDataSource.Spoof)
             {
                 LightshipLocationSpoof.Instance.Latitude = (float)gpsLocation.Latitude;
                 LightshipLocationSpoof.Instance.Longitude = (float)gpsLocation.Longitude;
