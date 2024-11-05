@@ -47,7 +47,7 @@ namespace Niantic.Lightship.MagicLeap
 
         protected override async Task<bool> OnStarting(CancellationToken cancellation)
         {
-            if (!LightshipSettings.Instance.PreferLidarIfAvailable)
+            if (!LightshipSettingsHelper.ActiveSettings.PreferLidarIfAvailable)
             {
                 Log.Error
                 (

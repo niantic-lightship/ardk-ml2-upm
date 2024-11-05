@@ -43,7 +43,7 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
 
         private void OnEnable()
         {
-            if (!LightshipSettings.Instance.UseLightshipSpoofLocation)
+            if (LightshipSettingsHelper.ActiveSettings.LocationAndCompassDataSource != LocationDataSource.Spoof)
             {
                 Debug.LogError
                     (
@@ -112,8 +112,9 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
             _arLocationManager.SetARLocations(arLocation);
 
             var gpsLocation = arLocation.GpsLocation;
-            LightshipLocationSpoof.Instance.Latitude = (float)gpsLocation.Latitude;
-            LightshipLocationSpoof.Instance.Longitude = (float)gpsLocation.Longitude;
+            var locationInfo = LightshipSettingsHelper.ActiveSettings.SpoofLocationInfo;
+            locationInfo.Latitude = (float)gpsLocation.Latitude;
+            locationInfo.Longitude = (float)gpsLocation.Longitude;
             UpdateGPSText();
             _localizationStatusDisplayText.text = "Trying to localize...";
 

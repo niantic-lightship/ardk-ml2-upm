@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using MagicLeap.OpenXR.Features;
 using Niantic.Lightship.AR.Loader;
 using Niantic.Lightship.AR.Utilities.Logging;
 
@@ -15,36 +16,36 @@ using UnityEngine.XR.OpenXR.Features;
 using UnityEditor;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEditor.Build;
-#endif  // UNITY_EDITOR
+using UnityEngine.XR.OpenXR;
+#endif // UNITY_EDITOR
 
 namespace Niantic.Lightship.MagicLeap
 {
 #if UNITY_EDITOR
     [OpenXRFeatureSet(
-        UiName = "Niantic Lightship SDK + Magic Leap",
-        Description = "Features to integrate Lightship functionality into Magic Leap 2 platform.",
+        UiName = "Niantic Lightship support for Magic Leap",
+        Description = "Features to use Lightship functionality on the Magic Leap 2.",
         FeatureSetId = "com.nianticlabs.lightship.ml2.featuregroup",
         SupportedBuildTargets = new [] { BuildTargetGroup.Android },
-        FeatureIds = new[] {
-            LightshipMagicLeapLoader.FeatureID,
-        },
-        DefaultFeatureIds = new[] {
-            LightshipMagicLeapLoader.FeatureID,
-        }
+        FeatureIds = new[] { LightshipMagicLeapLoader.FeatureID },
+        DefaultFeatureIds = new[] { LightshipMagicLeapLoader.FeatureID }
     )]
     public class LightshipMagicLeapFeatureGroup { }
 
-    [OpenXRFeature(UiName = FeatureName,
+    [OpenXRFeature(
+        UiName = FeatureName,
         BuildTargetGroups = new[] { BuildTargetGroup.Android },
         Company = "Niantic Labs Inc.",
-        Desc = "Enables Lightship features on Magic Leap 2",
+        Desc = "Necessary to deploy a Lightship app to a Magic Leap 2.",
         DocumentationLink = "",
         Version = "3.6.0",
         Required = false,
         Priority = -1,
         Category = FeatureCategory.Feature,
-        FeatureId = FeatureID)]
+        FeatureId = FeatureID
+    )]
 #endif // UNITY_EDITOR
+
 #if UNITY_ANDROID
     public class LightshipMagicLeapLoader : OpenXRFeature, ILightshipInternalLoaderSupport
     {
@@ -89,14 +90,32 @@ namespace Niantic.Lightship.MagicLeap
         [MenuItem("Lightship/Setup ML2")]
         private static void SetupML2()
         {
+            // MagicLeap package-specific symbols
+            AddDefineSymbols.Add("MAGICLEAP");
+            AddDefineSymbols.Add("USE_ML_OPENXR");
+
             AddDefineSymbols.Add("NIANTIC_LIGHTSHIP_ML2_ENABLED");
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.X86_64;
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new GraphicsDeviceType[] {GraphicsDeviceType.Vulkan});
+
+            // Apply all Project Validation fixes from LightshipMagicLeapProjectValidationRules.
+            var oxrSettings = OpenXRSettings.ActiveBuildTargetInstance;
+            var feature = oxrSettings.GetFeature<LightshipMagicLeapLoader>();
+            feature.enabled = true;
+            var mlFeature = oxrSettings.GetFeature<MagicLeapFeature>();
+            mlFeature.enabled = true;
+            mlFeature.EnablePerceptionSnapshots = true;
+            var mlrsFeature = oxrSettings.GetFeature<MagicLeapReferenceSpacesFeature>();
+            mlrsFeature.enabled = true;
         }
 
         [MenuItem("Lightship/Setup Non-ML2 Android")]
         private static void SetupNonML2Android()
         {
+            // MagicLeap package-specific symbols
+            AddDefineSymbols.Remove("MAGICLEAP");
+            AddDefineSymbols.Remove("USE_ML_OPENXR");
+
             AddDefineSymbols.Remove("NIANTIC_LIGHTSHIP_ML2_ENABLED");
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new GraphicsDeviceType[] {GraphicsDeviceType.OpenGLES3});
