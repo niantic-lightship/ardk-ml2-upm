@@ -33,7 +33,9 @@ namespace Niantic.Lightship.MagicLeap
             }
 
             // Need to set up spoofed location service early
-            TryStartLocationService();
+            TryStartLocation();
+            StartCompassIfNeeded();
+
 
             // Start the ML2 camera manager
             ML2CameraManager.Instance.Start();
@@ -44,9 +46,9 @@ namespace Niantic.Lightship.MagicLeap
             get => _inputSubsystem != null && base.DidLoadSubsystems;
         }
 
-        protected override void OnAcquireSubsystems(XRLoader loader)
+        protected override void OnSubsystemsLoaded(XRLoader loader)
         {
-            base.OnAcquireSubsystems(loader);
+            base.OnSubsystemsLoaded(loader);
 
             _inputSubsystem = loader.GetLoadedSubsystem<XRInputSubsystem>();
             if (_inputSubsystem == null)

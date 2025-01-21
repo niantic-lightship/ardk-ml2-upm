@@ -24,7 +24,7 @@ namespace Niantic.Lightship.MagicLeap
                 callbacks.PermissionDenied += onPermissionDenied;
                 callbacks.PermissionDeniedAndDontAskAgain += onPermissionDeniedAndDontAskAgain ?? onPermissionDenied;
 
-                Permission.RequestUserPermission(permission);
+                Permission.RequestUserPermission(permission, callbacks);
             }
             else
             {

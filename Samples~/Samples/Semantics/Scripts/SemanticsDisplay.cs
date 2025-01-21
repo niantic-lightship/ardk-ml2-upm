@@ -28,11 +28,9 @@ namespace Niantic.Lightship.MagicLeap.Samples
             Debug.Assert(_semanticsManager != null, "Missing semantic segmentation manager component.");
         }
 
-        protected override void OnEnable()
+        private void OnEnable()
         {
-            base.OnEnable();
             _semanticsManager.MetadataInitialized += OnSemanticsMetadataInitialized;
-
             if (_channelDropdown is not null)
             {
                 _channelDropdown.onValueChanged.AddListener(OnChanelDropdownValueChanged);
@@ -42,7 +40,6 @@ namespace Niantic.Lightship.MagicLeap.Samples
         private void OnDisable()
         {
             _semanticsManager.MetadataInitialized -= OnSemanticsMetadataInitialized;
-
             if (_channelDropdown is not null)
             {
                 _channelDropdown.onValueChanged.RemoveListener(OnChanelDropdownValueChanged);

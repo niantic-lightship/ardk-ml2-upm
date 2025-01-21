@@ -179,7 +179,7 @@ namespace Niantic.Lightship.MagicLeap
                     depthImage.Data,
                     (int)depthImage.Width,
                     (int)depthImage.Height,
-                    TextureFormat.RFloat,
+                    XRCpuImage.Format.DepthFloat32,
                     (ulong)ML2CameraManager.Instance.LastTimestampMs,
                     out var depthCinfo
                 );
@@ -196,7 +196,7 @@ namespace Niantic.Lightship.MagicLeap
                     confidenceImage.Data,
                     (int)confidenceImage.Width,
                     (int)confidenceImage.Height,
-                    TextureFormat.RFloat,
+                    XRCpuImage.Format.DepthFloat32,
                     (ulong)ML2CameraManager.Instance.LastTimestampMs,
                     out var confidenceCinfo
                 );

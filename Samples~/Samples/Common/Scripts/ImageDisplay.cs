@@ -17,17 +17,12 @@ namespace Niantic.Lightship.MagicLeap.Samples
         /// <summary>
         /// ID of the display matrix in the shader.
         /// </summary>
-        private readonly int DisplayMatrixId = Shader.PropertyToID(DisplayMatrixPropertyName);
+        private readonly int _displayMatrixId = Shader.PropertyToID(DisplayMatrixPropertyName);
 
         /// <summary>
         /// A string builder for construction of strings.
         /// </summary>
-        protected readonly StringBuilder _stringBuilder = new();
-
-        /// <summary>
-        /// The current screen orientation remembered so that we are only updating the raw image layout when it changes.
-        /// </summary>
-        protected ScreenOrientation _currentScreenOrientation;
+        private readonly StringBuilder _stringBuilder = new();
 
         [SerializeField][Tooltip("The camera rendering the specified RawImage")]
         private Camera _camera;
@@ -41,8 +36,6 @@ namespace Niantic.Lightship.MagicLeap.Samples
         [SerializeField]
         private Text _imageInfo;
 
-        private float _minDimension;
-
         protected virtual Material ActiveMaterial
         {
             get => _material;
@@ -50,54 +43,40 @@ namespace Niantic.Lightship.MagicLeap.Samples
 
         protected virtual void Awake()
         {
-            if (_camera == null)
-            {
-                Debug.LogError("No camera reference found.");
-                return;
-            }
+            Debug.Assert(_camera != null, "No camera reference found.");
+            Debug.Assert(_rawImage != null, "No raw image reference found.");
 
-            // Get the current screen orientation, and update the raw image UI
-            _currentScreenOrientation = XRDisplayContext.GetScreenOrientation();
-
-            // Define the minimum screen size of the raw image based on its editor size
-            Vector2 sizeDelta = _rawImage != null ? _rawImage.rectTransform.sizeDelta : new Vector2(480, 480);
-            _minDimension = Mathf.Min(sizeDelta.x, sizeDelta.y);
-        }
-
-        protected virtual void OnEnable()
-        {
-            InitializeRawImage();
+            // Initialize the raw image material
+            _rawImage.material = ActiveMaterial;
         }
 
         protected virtual void Update()
         {
-            Debug.Assert(_rawImage != null, "no raw image");
+            // Inspect the viewport
+            var rect = _rawImage.rectTransform.rect;
+            var viewportResolution = new Vector2(rect.width, rect.height);
 
-            // Update the image
-            var sizeDelta = _rawImage.rectTransform.sizeDelta;
             OnUpdatePresentation
             (
-                viewportWidth: (int)sizeDelta.x,
-                viewportHeight: (int)sizeDelta.y,
-                orientation: _currentScreenOrientation,
+                viewportWidth: (int)viewportResolution.x,
+                viewportHeight: (int)viewportResolution.y,
+                orientation: XRDisplayContext.GetScreenOrientation(),
                 renderingMaterial: _rawImage.material,
                 image: out var texture,
                 displayMatrix: out var displayMatrix
             );
 
+            // Update the raw image
             _rawImage.texture = texture;
-            _rawImage.material.SetMatrix(DisplayMatrixId, displayMatrix);
+            _rawImage.material.SetMatrix(_displayMatrixId, displayMatrix);
 
-            if (_rawImage.texture != null)
+            // Display some text information about each of the textures.
+            var displayTexture = _rawImage.texture as Texture2D;
+            if (displayTexture != null)
             {
-                // Display some text information about each of the textures.
-                var displayTexture = _rawImage.texture as Texture2D;
-                if (displayTexture != null)
-                {
-                    _stringBuilder.Clear();
-                    BuildTextureInfo(_stringBuilder, "env", displayTexture);
-                    LogText(_stringBuilder.ToString());
-                }
+                _stringBuilder.Clear();
+                BuildTextureInfo(_stringBuilder, "env", displayTexture);
+                LogText(_stringBuilder.ToString());
             }
         }
 
@@ -156,39 +135,6 @@ namespace Niantic.Lightship.MagicLeap.Samples
             {
                 Debug.Log(text);
             }
-        }
-
-        /// <summary>
-        /// Update the raw image with the current configurations.
-        /// </summary>
-        private void InitializeRawImage()
-        {
-            Debug.Assert(_rawImage != null, "no raw image");
-
-            // The aspect ratio of the presentation in landscape orientation
-            var aspect = Mathf.Max(_camera.pixelWidth, _camera.pixelHeight) /
-                (float)Mathf.Min(_camera.pixelWidth, _camera.pixelHeight);
-
-            // Determine the raw image rectSize preserving the texture aspect ratio, matching the screen orientation,
-            // and keeping a minimum dimension size.
-            float maxDimension = Mathf.Round(_minDimension * aspect);
-            Vector2 rectSize;
-            switch (_currentScreenOrientation)
-            {
-                case ScreenOrientation.LandscapeRight:
-                case ScreenOrientation.LandscapeLeft:
-                    rectSize = new Vector2(maxDimension, _minDimension);
-                    break;
-                case ScreenOrientation.PortraitUpsideDown:
-                case ScreenOrientation.Portrait:
-                default:
-                    rectSize = new Vector2(_minDimension, maxDimension);
-                    break;
-            }
-
-            // Update the raw image dimensions and the raw image material parameters.
-            _rawImage.rectTransform.sizeDelta = rectSize;
-            _rawImage.material = ActiveMaterial;
         }
     }
 }
