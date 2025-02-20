@@ -42,7 +42,8 @@ namespace Niantic.Lightship.MagicLeap
         Required = false,
         Priority = -1,
         Category = FeatureCategory.Feature,
-        FeatureId = FeatureID
+        FeatureId = FeatureID,
+        OpenxrExtensionStrings = ""
     )]
 #endif // UNITY_EDITOR
 

@@ -5,7 +5,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.XR.ARSubsystems;
+
+#if UNITY_6000_0_OR_NEWER
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
+#else
 using UnityEngine.XR.Interaction.Toolkit;
+#endif
 
 namespace Niantic.Lightship.MagicLeap.InternalSamples
 {
