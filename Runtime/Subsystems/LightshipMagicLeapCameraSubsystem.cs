@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Niantic.
+// Copyright 2022-2025 Niantic.
 
 #if NIANTIC_LIGHTSHIP_ML2_ENABLED
 
@@ -43,7 +43,11 @@ namespace Niantic.Lightship.MagicLeap
         static void Register()
         {
             Log.Info($"[ARDK ML] Registering the {ID} subsystem.");
+#if UNITY_6000_0_OR_NEWER
+            var cameraSubsystemCinfo = new XRCameraSubsystemDescriptor.Cinfo
+#else
             var cameraSubsystemCinfo = new XRCameraSubsystemCinfo
+#endif
             {
                 id = ID,
                 providerType = typeof(LightshipMagicLeapCameraProvider),
@@ -65,6 +69,17 @@ namespace Niantic.Lightship.MagicLeap
                 supportsCameraGrain = false,
             };
 
+#if UNITY_6000_0_OR_NEWER
+            try
+            {
+                XRCameraSubsystemDescriptor.Register(cameraSubsystemCinfo);
+                Log.Info($"[ARDK ML] Registered the {ID} subsystem.");
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[ARDK ML] Failed to register the {ID} subsystem: {e.Message}");
+            }
+#else
             if (!XRCameraSubsystem.Register(cameraSubsystemCinfo))
             {
                 Log.Error($"[ARDK ML] Failed to register the {ID} subsystem.");
@@ -73,6 +88,7 @@ namespace Niantic.Lightship.MagicLeap
             {
                 Log.Info($"[ARDK ML] Registered the {ID} subsystem.");
             }
+#endif
         }
 
         private class LightshipMagicLeapCameraProvider : Provider

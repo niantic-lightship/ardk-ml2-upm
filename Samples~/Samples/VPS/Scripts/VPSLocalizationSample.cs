@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Niantic.
+// Copyright 2022-2025 Niantic.
 using System.Collections.Generic;
 using System.Linq;
 using Niantic.Lightship.AR;
@@ -43,14 +43,17 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
 
         private void OnEnable()
         {
+            _debugDisplayText.text = "";
             if (LightshipSettingsHelper.ActiveSettings.LocationAndCompassDataSource != LocationDataSource.Spoof)
             {
                 Debug.LogError
                     (
-                        "Magic Leap does not provide GPS, which is neccessary for Lightship VPS. " +
+                        "Magic Leap does not provide GPS, which is necessary for Lightship VPS. " +
                         "Please enable the Spoof Location feature in the Lightship Settings menu in " +
                         "order to try out the VPS Localization Sample."
                     );
+                _debugDisplayText.text =
+                    "Error: Spoof Location is not enabled. ML2 does not provide GPS which Lightship VPS requires. Please enable Location Spoofing in Lightship Settings.";
 
                 return;
             }
@@ -61,6 +64,7 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
             if (_arLocationManager.AutoTrack)
             {
                 _arLocationUI.SetActive(false);
+                _arLocationChooseButton.GetComponentInChildren<Text>().text = "Automatic Localization";
             }
             else
             {
@@ -74,20 +78,23 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
                 Input.location.Start();
             }
 
-            _localizationStatusDisplayText.text = "Not running";
+            _localizationStatusDisplayText.text = "Status: Stopped";
             UpdateGPSText();
         }
 
         private void OnDebugInfoProvided(XRPersistentAnchorDebugInfo info)
         {
-            var errors = info.networkStatusArray.Where(s => s.Status == RequestStatus.Failed).Select(s => s.Error);
-            _debugDisplayText.text = "Network errors: " + string.Join(",", errors);
+            var errors = info.networkStatusArray.Where(s => s.Status == RequestStatus.Failed).Select(s => s.Error).ToArray();
+            if (errors.Length > 0)
+            {
+                _debugDisplayText.text = "Network errors: " + string.Join(",", errors) + "\nPlease ensure you are connected to WIFI and have set a valid API key in Lightship Settings.";
+            }
         }
 
         private void OnDisable()
         {
             _arLocationManager.locationTrackingStateChanged -= OnLocationTrackingStateChanged;
-            _arLocationChooseButton.onClick.RemoveListener(OnLocationSelected);
+            _arLocationChooseButton.onClick.RemoveAllListeners();
         }
 
         private void CreateARLocationMenu()
@@ -116,15 +123,27 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
             locationInfo.Latitude = (float)gpsLocation.Latitude;
             locationInfo.Longitude = (float)gpsLocation.Longitude;
             UpdateGPSText();
-            _localizationStatusDisplayText.text = "Trying to localize...";
+            _localizationStatusDisplayText.text = "Status: Trying to localize...";
 
             _arLocationManager.StartTracking();
+            _arLocationChooseButton.onClick.RemoveAllListeners();
+            _arLocationChooseButton.onClick.AddListener(OnStopTracking);
+            _arLocationChooseButton.GetComponentInChildren<Text>().text = "Stop Localization";
+        }
+
+        private void OnStopTracking()
+        {
+            _arLocationManager.StopTracking();
+            _arLocationChooseButton.onClick.RemoveAllListeners();
+            _arLocationChooseButton.onClick.AddListener(OnLocationSelected);
+            _localizationStatusDisplayText.text = "Status: Stopped";
+            _arLocationChooseButton.GetComponentInChildren<Text>().text = "Start Localization";
         }
 
         private void OnLocationTrackingStateChanged(ARLocationTrackedEventArgs args)
         {
             _localizationStatusDisplayText.text =
-                $"Tracking state: {args.Tracking} (reason: {args.TrackingStateReason})";
+                $"Status: {(args.Tracking ? "Tracking Success" : $"Tracking Failure (reason: {args.TrackingStateReason})")}";
 
             args.ARLocation.gameObject.SetActive(args.Tracking);
         }

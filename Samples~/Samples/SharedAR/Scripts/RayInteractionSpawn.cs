@@ -1,11 +1,13 @@
+// Copyright 2022-2025 Niantic.
 
 #if NIANTIC_LIGHTSHIP_SHAREDAR_ENABLED
 
+using Niantic.Lightship.MagicLeap.InternalSamples;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 
-using ItemType = NetworkItem.NetworkItemType;
+using ItemType = Niantic.Lightship.MagicLeap.InternalSamples.NetworkItem.NetworkItemType;
 
 public class RayInteractionSpawn : MonoBehaviour
 {

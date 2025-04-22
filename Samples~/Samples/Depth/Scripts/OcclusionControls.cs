@@ -1,3 +1,4 @@
+// Copyright 2022-2025 Niantic.
 using Niantic.Lightship.AR.Occlusion;
 using Niantic.Lightship.AR.Semantics;
 using UnityEngine;

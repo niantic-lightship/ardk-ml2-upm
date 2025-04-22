@@ -1,3 +1,4 @@
+// Copyright 2022-2025 Niantic.
 
 #if NIANTIC_LIGHTSHIP_SHAREDAR_ENABLED
 
@@ -8,7 +9,7 @@ using Niantic.Lightship.SharedAR.Networking;
 using Niantic.Lightship.SharedAR.Rooms;
 using UnityEngine;
 
-using ItemType = NetworkItem.NetworkItemType;
+using ItemType = Niantic.Lightship.MagicLeap.InternalSamples.NetworkItem.NetworkItemType;
 
 namespace Niantic.Lightship.MagicLeap.InternalSamples
 {

@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Niantic.
+// Copyright 2022-2025 Niantic.
 
 #if NIANTIC_LIGHTSHIP_SHAREDAR_ENABLED
 
@@ -103,8 +103,6 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
                 Input.location.Start();
             }
 #endif
-            LightshipLocationSpoof.Instance.Latitude = (float)_arLocation.GpsLocation.Latitude;
-            LightshipLocationSpoof.Instance.Longitude = (float)_arLocation.GpsLocation.Longitude;
 
             if (!Input.location.isEnabledByUser)
             {

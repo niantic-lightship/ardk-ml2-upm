@@ -1,3 +1,4 @@
+// Copyright 2022-2025 Niantic.
 using System.Collections.Generic;
 using Niantic.Lightship.AR.Semantics;
 using Niantic.Lightship.AR.Utilities;

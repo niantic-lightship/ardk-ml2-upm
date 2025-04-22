@@ -1,8 +1,9 @@
-// Copyright 2022-2024 Niantic.
+// Copyright 2022-2025 Niantic.
 
 using System;
 using System.Collections.Generic;
 using MagicLeap.OpenXR.Features;
+using Niantic.Lightship.AR;
 using Niantic.Lightship.AR.Loader;
 using Niantic.Lightship.AR.Utilities.Logging;
 
@@ -108,6 +109,8 @@ namespace Niantic.Lightship.MagicLeap
             mlFeature.EnablePerceptionSnapshots = true;
             var mlrsFeature = oxrSettings.GetFeature<MagicLeapReferenceSpacesFeature>();
             mlrsFeature.enabled = true;
+
+            LightshipSettings.Instance.LocationAndCompassDataSource = LocationDataSource.Spoof;
         }
 
         [MenuItem("Lightship/Setup Non-ML2 Android")]
@@ -120,6 +123,8 @@ namespace Niantic.Lightship.MagicLeap
             AddDefineSymbols.Remove("NIANTIC_LIGHTSHIP_ML2_ENABLED");
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new GraphicsDeviceType[] {GraphicsDeviceType.OpenGLES3});
+
+            LightshipSettings.Instance.LocationAndCompassDataSource = LocationDataSource.Sensors;
         }
 #endif
         protected override bool OnInstanceCreate(ulong instanceHandle)

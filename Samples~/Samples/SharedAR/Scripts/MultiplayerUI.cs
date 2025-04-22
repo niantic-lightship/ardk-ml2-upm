@@ -1,3 +1,4 @@
+// Copyright 2022-2025 Niantic.
 
 #if NIANTIC_LIGHTSHIP_SHAREDAR_ENABLED
 
@@ -89,12 +90,6 @@ namespace Niantic.Lightship.MagicLeap.InternalSamples
             var arLocation = _arLocations[currentIndex];
             _arLocationManager.SetARLocations(arLocation);
             LatLng gpsLocation = arLocation.GpsLocation;
-
-            if (LightshipSettingsHelper.ActiveSettings.LocationAndCompassDataSource == SensorDataSource.Spoof)
-            {
-                LightshipLocationSpoof.Instance.Latitude = (float)gpsLocation.Latitude;
-                LightshipLocationSpoof.Instance.Longitude = (float)gpsLocation.Longitude;
-            }
 
             _magicLeapColocalization.ArLocation = arLocation;
 
