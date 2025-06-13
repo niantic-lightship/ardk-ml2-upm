@@ -1,7 +1,7 @@
 {
     "name": "com.nianticlabs.lightship.ml2",
     "displayName": "Niantic Lightship Magic Leap Plugin",
-    "version": "3.13.0-2504092018",
+    "version": "3.14.0-2506111947",
     "description": "Lightship ARDK adapter for Magic Leap 2",
     "keywords": [
         "magicleap",
@@ -14,7 +14,7 @@
     "dependencies": {
         "com.unity.xr.openxr": "1.11.0",
         "com.magicleap.unitysdk": "2.5.0",
-        "com.nianticlabs.lightship": "3.13.0-2504092018"
+        "com.nianticlabs.lightship": "3.14.0-2506111947"
     },
     "author": {
         "name": "Niantic Labs, Inc",

@@ -9,7 +9,7 @@ namespace Niantic.Lightship.AR.Subsystems
     {
         private GameObject _parent;
         private LineRenderer CameraPoseRenderer;
-        private Camera _camera;
+        private UnityEngine.Camera _camera;
         private Gradient _validGradient;
         private Gradient _inValidGradient;
 
@@ -17,7 +17,7 @@ namespace Niantic.Lightship.AR.Subsystems
         {
             // Only one line renderer can be added per GO, so spawn a new one
             _parent = new GameObject();
-            _camera = Camera.main;
+            _camera = UnityEngine.Camera.main;
             CameraPoseRenderer = _parent.AddComponent<LineRenderer>();
             CameraPoseRenderer.startWidth = 0.1f;
             CameraPoseRenderer.material = new Material(Shader.Find("Sprites/Default"));
