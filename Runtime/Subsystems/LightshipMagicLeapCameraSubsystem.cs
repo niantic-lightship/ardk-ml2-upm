@@ -269,25 +269,12 @@ namespace Niantic.Lightship.MagicLeap
                 }
             }
 
-            private float GetMiddleEyeOffset()
+            private static float GetMiddleEyeOffset()
             {
-                const float defaultValue = 0.032f; // Default value between middle camera and left/right cameras
-                if (!InputReader.ActiveDevice.HasValue)
-                {
-                    return defaultValue;
-                }
-
-                var device = InputReader.ActiveDevice.Value;
-                if (device.characteristics.HasFlag(InputDeviceCharacteristics.HeadMounted))
-                {
-                    if (device.TryGetFeatureValue(CommonUsages.leftEyePosition, out var leftEyePosition) &&
-                        device.TryGetFeatureValue(CommonUsages.rightEyePosition, out var rightEyePosition))
-                    {
-                        return Vector3.Distance(leftEyePosition, rightEyePosition) / 2f;
-                    }
-                }
-
-                return defaultValue;
+                // Default value between middle camera and left/right cameras
+                const float defaultValue = 0.032f;
+                var ipd = InputReader.InterpupillaryDistance;
+                return ipd.HasValue ? ipd.Value / 2f : defaultValue;
             }
 
         } // class LightshipMagicLeapCameraProvider
